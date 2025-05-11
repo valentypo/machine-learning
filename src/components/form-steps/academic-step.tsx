@@ -10,9 +10,10 @@ import { GraduationCap, BookOpen } from "lucide-react"
 interface AcademicStepProps {
   formData: any
   updateFormData: (data: any) => void
+  validationErrors: Record<string, boolean>
 }
 
-export function AcademicStep({ formData, updateFormData }: AcademicStepProps) {
+export function AcademicStep({ formData, updateFormData, validationErrors }: AcademicStepProps) {
   const [showDegreeName, setShowDegreeName] = useState(
     formData.degree === "Bachelor" || formData.degree === "Master" || formData.degree === "Doctorate",
   )
@@ -40,12 +41,16 @@ export function AcademicStep({ formData, updateFormData }: AcademicStepProps) {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="text-blue-600" size={18} />
-            <Label htmlFor="degree" className="text-gray-700 font-medium">
-              Education Level
+            <Label htmlFor="degree" className="text-gray-700 font-medium flex items-center">
+              Education Level <span className="text-red-500 ml-1">*</span>
             </Label>
           </div>
           <Select value={formData.degree} onValueChange={handleDegreeChange}>
-            <SelectTrigger className="w-full rounded-xl border-gray-300">
+            <SelectTrigger
+              className={`w-full rounded-xl ${
+                validationErrors.degree ? "border-red-300 ring-1 ring-red-300" : "border-gray-300"
+              }`}
+            >
               <SelectValue placeholder="Select your education level" />
             </SelectTrigger>
             <SelectContent>
@@ -55,26 +60,32 @@ export function AcademicStep({ formData, updateFormData }: AcademicStepProps) {
               <SelectItem value="Doctorate">Doctorate</SelectItem>
             </SelectContent>
           </Select>
+          {validationErrors.degree && <p className="text-red-500 text-sm mt-1">Education level is required</p>}
 
           {showDegreeName && (
             <div className="mt-3">
-              <Label htmlFor="degreeName" className="text-gray-700 text-sm">
-                Degree Name
+              <Label htmlFor="degreeName" className="text-gray-700 text-sm flex items-center">
+                Degree Name <span className="text-red-500 ml-1">*</span>
               </Label>
               <Input
                 id="degreeName"
                 value={formData.degreeName}
                 onChange={(e) => updateFormData({ degreeName: e.target.value })}
-                className="mt-1 rounded-xl border-gray-300"
+                className={`mt-1 rounded-xl ${
+                  validationErrors.degreeName
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300"
+                }`}
                 placeholder="E.g., Computer Science, Business Administration"
               />
+              {validationErrors.degreeName && <p className="text-red-500 text-sm mt-1">Degree name is required</p>}
             </div>
           )}
         </div>
 
         <div>
-          <Label htmlFor="cgpa" className="text-gray-700 font-medium">
-            CGPA
+          <Label htmlFor="cgpa" className="text-gray-700 font-medium flex items-center">
+            CGPA <span className="text-red-500 ml-1">*</span>
           </Label>
           <Input
             id="cgpa"
@@ -84,13 +95,18 @@ export function AcademicStep({ formData, updateFormData }: AcademicStepProps) {
             max="4.0"
             value={formData.cgpa}
             onChange={(e) => updateFormData({ cgpa: e.target.value })}
-            className="mt-1 rounded-xl border-gray-300"
+            className={`mt-1 rounded-xl ${
+              validationErrors.cgpa ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter your CGPA"
           />
+          {validationErrors.cgpa && <p className="text-red-500 text-sm mt-1">CGPA is required</p>}
         </div>
 
         <div>
-          <Label className="text-gray-700 font-medium">Academic Pressure (0-5)</Label>
+          <Label className="text-gray-700 font-medium flex items-center">
+            Academic Pressure (0-5) <span className="text-red-500 ml-1">*</span>
+          </Label>
           <div className="mt-2">
             <RadioGroup
               value={formData.academicPressure}
@@ -119,11 +135,16 @@ export function AcademicStep({ formData, updateFormData }: AcademicStepProps) {
                 </div>
               ))}
             </RadioGroup>
+            {validationErrors.academicPressure && (
+              <p className="text-red-500 text-sm mt-2">Academic pressure rating is required</p>
+            )}
           </div>
         </div>
 
         <div>
-          <Label className="text-gray-700 font-medium">Study Satisfaction (0-5)</Label>
+          <Label className="text-gray-700 font-medium flex items-center">
+            Study Satisfaction (0-5) <span className="text-red-500 ml-1">*</span>
+          </Label>
           <div className="mt-2">
             <RadioGroup
               value={formData.studySatisfaction}
@@ -150,6 +171,9 @@ export function AcademicStep({ formData, updateFormData }: AcademicStepProps) {
                 </div>
               ))}
             </RadioGroup>
+            {validationErrors.studySatisfaction && (
+              <p className="text-red-500 text-sm mt-2">Study satisfaction rating is required</p>
+            )}
           </div>
         </div>
       </div>

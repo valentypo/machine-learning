@@ -6,11 +6,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { PersonalInfoStep } from "../form-steps/personal-info-step"
-import { AcademicStep } from "../form-steps/academic-step"
-import { LifestyleStep } from "../form-steps/lifestyle-step"
-import { MentalHealthStep } from "../form-steps/mental-health-step"
-import { SuccessStep } from "../form-steps/success-step"
+import { PersonalInfoStep } from "@/components/form-steps/personal-info-step"
+import { AcademicStep } from "@/components/form-steps/academic-step"
+import { LifestyleStep } from "@/components/form-steps/lifestyle-step"
+import { MentalHealthStep } from "@/components/form-steps/mental-health-step"
+import { SuccessStep } from "@/components/form-steps/success-step"
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react"
 
 export default function WellbeingForm() {
@@ -37,6 +37,10 @@ export default function WellbeingForm() {
     familyHistory: "",
   })
 
+  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({})
+  const [showValidationMessage, setShowValidationMessage] = useState(false)
+  const [attemptedValidation, setAttemptedValidation] = useState(false)
+
   const totalSteps = 5
   const progress = (step / totalSteps) * 100
 
@@ -45,9 +49,14 @@ export default function WellbeingForm() {
   }
 
   const nextStep = () => {
-    if (step < totalSteps) {
-      setStep(step + 1)
-      window.scrollTo(0, 0)
+    if (validateCurrentStep()) {
+      if (step < totalSteps) {
+        setStep(step + 1)
+        window.scrollTo(0, 0)
+        setValidationErrors({})
+        setShowValidationMessage(false)
+        setAttemptedValidation(false)
+      }
     }
   }
 
@@ -55,14 +64,135 @@ export default function WellbeingForm() {
     if (step > 1) {
       setStep(step - 1)
       window.scrollTo(0, 0)
+      setValidationErrors({})
+      setShowValidationMessage(false)
+      setAttemptedValidation(false)
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateCurrentStep = () => {
+    let isValid = true
+    const errors: Record<string, boolean> = {}
+
+    if (step === 1) {
+      if (!formData.gender) {
+        errors.gender = true
+        isValid = false
+      }
+      if (!formData.age) {
+        errors.age = true
+        isValid = false
+      }
+      if (!formData.profession) {
+        errors.profession = true
+        isValid = false
+      }
+      if (formData.profession === "Others" && !formData.otherProfession) {
+        errors.otherProfession = true
+        isValid = false
+      }
+    } else if (step === 2) {
+      if (!formData.degree) {
+        errors.degree = true
+        isValid = false
+      }
+      if (
+        (formData.degree === "Bachelor" || formData.degree === "Master" || formData.degree === "Doctorate") &&
+        !formData.degreeName
+      ) {
+        errors.degreeName = true
+        isValid = false
+      }
+      if (!formData.cgpa) {
+        errors.cgpa = true
+        isValid = false
+      }
+      if (!formData.academicPressure) {
+        errors.academicPressure = true
+        isValid = false
+      }
+      if (!formData.studySatisfaction) {
+        errors.studySatisfaction = true
+        isValid = false
+      }
+    } else if (step === 3) {
+      if (!formData.sleepDuration) {
+        errors.sleepDuration = true
+        isValid = false
+      }
+      if (formData.sleepDuration === "Others" && !formData.otherSleepDuration) {
+        errors.otherSleepDuration = true
+        isValid = false
+      }
+      if (!formData.dietaryHabits) {
+        errors.dietaryHabits = true
+        isValid = false
+      }
+      if (formData.dietaryHabits === "Others" && !formData.otherDietaryHabits) {
+        errors.otherDietaryHabits = true
+        isValid = false
+      }
+      if (!formData.workStudyHours) {
+        errors.workStudyHours = true
+        isValid = false
+      }
+      if (!formData.workPressure) {
+        errors.workPressure = true
+        isValid = false
+      }
+      if (!formData.jobSatisfaction) {
+        errors.jobSatisfaction = true
+        isValid = false
+      }
+    } else if (step === 4 && attemptedValidation) {
+      if (!formData.financialStress) {
+        errors.financialStress = true
+        isValid = false
+      }
+      if (!formData.familyHistory) {
+        errors.familyHistory = true
+        isValid = false
+      }
+      if (!formData.suicidalThoughts) {
+        errors.suicidalThoughts = true
+        isValid = false
+      }
+    }
+
+    setValidationErrors(errors)
+
+    if (!isValid) {
+      setShowValidationMessage(true)
+      setTimeout(() => setShowValidationMessage(false), 3000)
+    }
+
+    return isValid
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real application, you would send this data to your backend
-    console.log(formData)
-    nextStep()
+    
+    setAttemptedValidation(true)
+
+    if (!validateCurrentStep()) {
+      return
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      setStep(5)
+      window.scrollTo(0, 0)
+    } catch (error) {
+      console.error("Error saving assessment:", error)
+    }
   }
 
   return (
@@ -89,19 +219,33 @@ export default function WellbeingForm() {
         indicatorClassName="bg-gradient-to-r from-pink-500 to-purple-500"
       />
 
+      {showValidationMessage && (
+        <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm animate-fade-in">
+          Please fill in all required fields before proceeding.
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
-        {step === 1 && <PersonalInfoStep formData={formData} updateFormData={updateFormData} />}
+        {step === 1 && (
+          <PersonalInfoStep formData={formData} updateFormData={updateFormData} validationErrors={validationErrors} />
+        )}
 
-        {step === 2 && <AcademicStep formData={formData} updateFormData={updateFormData} />}
+        {step === 2 && (
+          <AcademicStep formData={formData} updateFormData={updateFormData} validationErrors={validationErrors} />
+        )}
 
-        {step === 3 && <LifestyleStep formData={formData} updateFormData={updateFormData} />}
+        {step === 3 && (
+          <LifestyleStep formData={formData} updateFormData={updateFormData} validationErrors={validationErrors} />
+        )}
 
-        {step === 4 && <MentalHealthStep formData={formData} updateFormData={updateFormData} />}
+        {step === 4 && (
+          <MentalHealthStep formData={formData} updateFormData={updateFormData} validationErrors={validationErrors} />
+        )}
 
         {step === 5 && <SuccessStep />}
 
         <div className="flex justify-between mt-8">
-          {step > 1 && (
+          {step > 1 && step < 5 && (
             <Button
               type="button"
               onClick={prevStep}
@@ -113,13 +257,23 @@ export default function WellbeingForm() {
             </Button>
           )}
 
-          {step < 5 && (
+          {step < 4 && (
             <Button
-              type={step === 4 ? "submit" : "button"}
-              onClick={step < 4 ? nextStep : undefined}
+              type="button"
+              onClick={nextStep}
               className="ml-auto flex items-center gap-2 rounded-full px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
-              {step === 4 ? "Submit" : "Next"}
+              Next
+              <ArrowRight size={16} />
+            </Button>
+          )}
+          
+          {step === 4 && (
+            <Button
+              type="submit"
+              className="ml-auto flex items-center gap-2 rounded-full px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              Submit
               <ArrowRight size={16} />
             </Button>
           )}

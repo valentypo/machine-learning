@@ -10,9 +10,10 @@ import { User, Briefcase } from "lucide-react"
 interface PersonalInfoStepProps {
   formData: any
   updateFormData: (data: any) => void
+  validationErrors: Record<string, boolean>
 }
 
-export function PersonalInfoStep({ formData, updateFormData }: PersonalInfoStepProps) {
+export function PersonalInfoStep({ formData, updateFormData, validationErrors }: PersonalInfoStepProps) {
   const [showOtherProfession, setShowOtherProfession] = useState(formData.profession === "Others")
 
   const professions = [
@@ -50,8 +51,8 @@ export function PersonalInfoStep({ formData, updateFormData }: PersonalInfoStepP
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="gender" className="text-gray-700 font-medium">
-            Gender
+          <Label htmlFor="gender" className="text-gray-700 font-medium flex items-center">
+            Gender <span className="text-red-500 ml-1">*</span>
           </Label>
           <RadioGroup
             id="gender"
@@ -72,11 +73,12 @@ export function PersonalInfoStep({ formData, updateFormData }: PersonalInfoStepP
               </Label>
             </div>
           </RadioGroup>
+          {validationErrors.gender && <p className="text-red-500 text-sm mt-1">Gender is required</p>}
         </div>
 
         <div>
-          <Label htmlFor="age" className="text-gray-700 font-medium">
-            Age
+          <Label htmlFor="age" className="text-gray-700 font-medium flex items-center">
+            Age <span className="text-red-500 ml-1">*</span>
           </Label>
           <Input
             id="age"
@@ -85,20 +87,29 @@ export function PersonalInfoStep({ formData, updateFormData }: PersonalInfoStepP
             max="100"
             value={formData.age}
             onChange={(e) => updateFormData({ age: e.target.value })}
-            className="mt-1 rounded-xl border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+            className={`mt-1 rounded-xl ${
+              validationErrors.age
+                ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+            }`}
             placeholder="Enter your age"
           />
+          {validationErrors.age && <p className="text-red-500 text-sm mt-1">Age is required</p>}
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Briefcase className="text-purple-600" size={18} />
-            <Label htmlFor="profession" className="text-gray-700 font-medium">
-              Profession
+            <Label htmlFor="profession" className="text-gray-700 font-medium flex items-center">
+              Profession <span className="text-red-500 ml-1">*</span>
             </Label>
           </div>
           <Select value={formData.profession} onValueChange={handleProfessionChange}>
-            <SelectTrigger className="w-full rounded-xl border-gray-300">
+            <SelectTrigger
+              className={`w-full rounded-xl ${
+                validationErrors.profession ? "border-red-300 ring-1 ring-red-300" : "border-gray-300"
+              }`}
+            >
               <SelectValue placeholder="Select your profession" />
             </SelectTrigger>
             <SelectContent>
@@ -109,19 +120,27 @@ export function PersonalInfoStep({ formData, updateFormData }: PersonalInfoStepP
               ))}
             </SelectContent>
           </Select>
+          {validationErrors.profession && <p className="text-red-500 text-sm mt-1">Profession is required</p>}
 
           {showOtherProfession && (
             <div className="mt-2">
-              <Label htmlFor="otherProfession" className="text-gray-700 text-sm">
-                Please specify
+              <Label htmlFor="otherProfession" className="text-gray-700 text-sm flex items-center">
+                Please specify <span className="text-red-500 ml-1">*</span>
               </Label>
               <Input
                 id="otherProfession"
                 value={formData.otherProfession}
                 onChange={(e) => updateFormData({ otherProfession: e.target.value })}
-                className="mt-1 rounded-xl border-gray-300"
+                className={`mt-1 rounded-xl ${
+                  validationErrors.otherProfession
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300"
+                }`}
                 placeholder="Enter your profession"
               />
+              {validationErrors.otherProfession && (
+                <p className="text-red-500 text-sm mt-1">Please specify your profession</p>
+              )}
             </div>
           )}
         </div>

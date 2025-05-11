@@ -7,9 +7,10 @@ import { Brain, HeartPulse, DollarSign } from "lucide-react"
 interface MentalHealthStepProps {
   formData: any
   updateFormData: (data: any) => void
+  validationErrors: Record<string, boolean>
 }
 
-export function MentalHealthStep({ formData, updateFormData }: MentalHealthStepProps) {
+export function MentalHealthStep({ formData, updateFormData, validationErrors }: MentalHealthStepProps) {
   return (
     <div className="space-y-6">
       <div className="bg-pink-100 rounded-2xl p-4 mb-6">
@@ -25,7 +26,9 @@ export function MentalHealthStep({ formData, updateFormData }: MentalHealthStepP
 
       <div className="space-y-6">
         <div>
-          <Label className="text-gray-700 font-medium">Financial Stress (0-5)</Label>
+          <Label className="text-gray-700 font-medium flex items-center">
+            Financial Stress (0-5) <span className="text-red-500 ml-1">*</span>
+          </Label>
           <div className="mt-2">
             <RadioGroup
               value={formData.financialStress}
@@ -54,14 +57,17 @@ export function MentalHealthStep({ formData, updateFormData }: MentalHealthStepP
                 </div>
               ))}
             </RadioGroup>
+            {validationErrors.financialStress && (
+              <p className="text-red-500 text-sm mt-2">Financial stress rating is required</p>
+            )}
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Brain className="text-pink-600" size={18} />
-            <Label htmlFor="familyHistory" className="text-gray-700 font-medium">
-              Family History of Mental Illness
+            <Label htmlFor="familyHistory" className="text-gray-700 font-medium flex items-center">
+              Family History of Mental Illness <span className="text-red-500 ml-1">*</span>
             </Label>
           </div>
           <RadioGroup
@@ -83,13 +89,14 @@ export function MentalHealthStep({ formData, updateFormData }: MentalHealthStepP
               </Label>
             </div>
           </RadioGroup>
+          {validationErrors.familyHistory && <p className="text-red-500 text-sm mt-1">This field is required</p>}
         </div>
 
         <div className="space-y-3 pt-2">
           <div className="flex items-center gap-2">
             <DollarSign className="text-pink-600" size={18} />
-            <Label htmlFor="suicidalThoughts" className="text-gray-700 font-medium">
-              Have you ever had suicidal thoughts?
+            <Label htmlFor="suicidalThoughts" className="text-gray-700 font-medium flex items-center">
+              Have you ever had suicidal thoughts? <span className="text-red-500 ml-1">*</span>
             </Label>
           </div>
           <div className="bg-yellow-50 rounded-lg p-3 mb-2 text-sm text-yellow-800">
@@ -114,6 +121,7 @@ export function MentalHealthStep({ formData, updateFormData }: MentalHealthStepP
               </Label>
             </div>
           </RadioGroup>
+          {validationErrors.suicidalThoughts && <p className="text-red-500 text-sm mt-1">This field is required</p>}
         </div>
       </div>
     </div>

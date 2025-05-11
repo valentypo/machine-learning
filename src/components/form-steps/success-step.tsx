@@ -4,14 +4,6 @@ import Link from "next/link"
 import React, { useEffect, useState } from "react";
 
 export function SuccessStep() {
-  useEffect(() => {
-    fetch("http://localhost:8080/api/submit").then(
-      response => response.json()
-    ).then((data) => {
-      console.log(data);
-    })
-  }, [])
-
   return (
     <div className="text-center space-y-6 py-4">
       <div className="flex justify-center">
