@@ -13,6 +13,12 @@ import { MentalHealthStep } from "@/components/form-steps/mental-health-step"
 import { SuccessStep } from "@/components/form-steps/success-step"
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react"
 
+// Define the prediction result type
+interface PredictionResult {
+  prediction: number
+  message?: string
+}
+
 export default function WellbeingForm() {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -30,12 +36,16 @@ export default function WellbeingForm() {
     dietaryHabits: "",
     otherDietaryHabits: "",
     degree: "",
+    degreeType: "",
     degreeName: "",
     suicidalThoughts: "",
     workStudyHours: "",
     financialStress: "",
     familyHistory: "",
   })
+
+  // Add state for prediction result
+  const [predictionResult, setPredictionResult] = useState<PredictionResult | null>(null)
 
   const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({})
   const [showValidationMessage, setShowValidationMessage] = useState(false)
@@ -98,6 +108,16 @@ export default function WellbeingForm() {
       }
       if (
         (formData.degree === "Bachelor" || formData.degree === "Master" || formData.degree === "Doctorate") &&
+        !formData.degreeType
+      ) {
+        errors.degreeType = true
+        isValid = false
+      }
+
+      // Validate degree name only if "Others" is selected as degree type
+      if (
+        (formData.degree === "Bachelor" || formData.degree === "Master" || formData.degree === "Doctorate") &&
+        formData.degreeType === "Others" &&
         !formData.degreeName
       ) {
         errors.degreeName = true
@@ -171,7 +191,7 @@ export default function WellbeingForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     setAttemptedValidation(true)
 
     if (!validateCurrentStep()) {
@@ -179,15 +199,32 @@ export default function WellbeingForm() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const data = {
+        ...formData,
+        age: Number.parseFloat(formData.age),
+        academicPressure: Number.parseInt(formData.academicPressure),
+        workPressure: Number.parseInt(formData.workPressure),
+        cgpa: Number.parseFloat(formData.cgpa),
+        studySatisfaction: Number.parseInt(formData.studySatisfaction),
+        jobSatisfaction: Number.parseInt(formData.jobSatisfaction),
+        workStudyHours: Number.parseInt(formData.workStudyHours),
+        financialStress: Number.parseInt(formData.financialStress),
+      }
 
-      const result = await response.json();
+      const response = await fetch("http://localhost:8080/api/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+      console.log("Response from server:", result)
+
+      // Store the prediction result
+      setPredictionResult(result)
+
       setStep(5)
       window.scrollTo(0, 0)
     } catch (error) {
@@ -209,7 +246,7 @@ export default function WellbeingForm() {
           {step === 2 && "Academic Details"}
           {step === 3 && "Lifestyle Factors"}
           {step === 4 && "Mental Wellbeing"}
-          {step === 5 && "Thank You"}
+          {step === 5 && "Results"}
         </div>
       </div>
 
@@ -242,7 +279,7 @@ export default function WellbeingForm() {
           <MentalHealthStep formData={formData} updateFormData={updateFormData} validationErrors={validationErrors} />
         )}
 
-        {step === 5 && <SuccessStep />}
+        {step === 5 && <SuccessStep predictionResult={predictionResult} />}
 
         <div className="flex justify-between mt-8">
           {step > 1 && step < 5 && (
@@ -267,7 +304,7 @@ export default function WellbeingForm() {
               <ArrowRight size={16} />
             </Button>
           )}
-          
+
           {step === 4 && (
             <Button
               type="submit"

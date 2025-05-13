@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { GraduationCap, BookOpen } from "lucide-react"
+import { GraduationCap, BookOpen, Award } from "lucide-react"
 
 interface AcademicStepProps {
   formData: any
@@ -17,14 +17,58 @@ export function AcademicStep({ formData, updateFormData, validationErrors }: Aca
   const [showDegreeName, setShowDegreeName] = useState(
     formData.degree === "Bachelor" || formData.degree === "Master" || formData.degree === "Doctorate",
   )
+  const [showCustomDegree, setShowCustomDegree] = useState(formData.degreeType === "Others")
 
   useEffect(() => {
     setShowDegreeName(formData.degree === "Bachelor" || formData.degree === "Master" || formData.degree === "Doctorate")
   }, [formData.degree])
 
+  useEffect(() => {
+    setShowCustomDegree(formData.degreeType === "Others")
+  }, [formData.degreeType])
+
   const handleDegreeChange = (value: string) => {
-    updateFormData({ degree: value })
+    // When degree changes, reset the degreeType and degreeName
+    updateFormData({
+      degree: value,
+      degreeType: "",
+      degreeName: "",
+    })
     setShowDegreeName(value === "Bachelor" || value === "Master" || value === "Doctorate")
+  }
+
+  const handleDegreeTypeChange = (value: string) => {
+    updateFormData({ degreeType: value })
+    setShowCustomDegree(value === "Others")
+  }
+
+  // Define degree options based on degree level
+  const bachelorDegrees = [
+    "B.Ed",
+    "B.Com",
+    "B.Arch",
+    "BCA",
+    "B.Tech",
+    "BHM",
+    "BSc",
+    "B.Pharm",
+    "BBA",
+    "LLB",
+    "BE",
+    "BA",
+    "Others",
+  ]
+
+  const masterDegrees = ["MSc", "MCA", "M.Tech", "M.Ed", "M.Com", "M.Pharm", "MD", "MBA", "MA", "MHM", "ME", "Others"]
+
+  const doctorateDegrees = ["PhD", "Others"]
+
+  // Get the appropriate degree list based on selected degree level
+  const getDegreeOptions = () => {
+    if (formData.degree === "Bachelor") return bachelorDegrees
+    if (formData.degree === "Master") return masterDegrees
+    if (formData.degree === "Doctorate") return doctorateDegrees
+    return []
   }
 
   return (
@@ -63,22 +107,52 @@ export function AcademicStep({ formData, updateFormData, validationErrors }: Aca
           {validationErrors.degree && <p className="text-red-500 text-sm mt-1">Education level is required</p>}
 
           {showDegreeName && (
-            <div className="mt-3">
-              <Label htmlFor="degreeName" className="text-gray-700 text-sm flex items-center">
-                Degree Name <span className="text-red-500 ml-1">*</span>
-              </Label>
-              <Input
-                id="degreeName"
-                value={formData.degreeName}
-                onChange={(e) => updateFormData({ degreeName: e.target.value })}
-                className={`mt-1 rounded-xl ${
-                  validationErrors.degreeName
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                    : "border-gray-300"
-                }`}
-                placeholder="E.g., Computer Science, Business Administration"
-              />
-              {validationErrors.degreeName && <p className="text-red-500 text-sm mt-1">Degree name is required</p>}
+            <div className="mt-4 space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Award className="text-blue-600" size={18} />
+                  <Label htmlFor="degreeType" className="text-gray-700 font-medium flex items-center">
+                    Degree Type <span className="text-red-500 ml-1">*</span>
+                  </Label>
+                </div>
+                <Select value={formData.degreeType} onValueChange={handleDegreeTypeChange}>
+                  <SelectTrigger
+                    className={`w-full rounded-xl ${
+                      validationErrors.degreeType ? "border-red-300 ring-1 ring-red-300" : "border-gray-300"
+                    }`}
+                  >
+                    <SelectValue placeholder={`Select your ${formData.degree}'s degree`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getDegreeOptions().map((degree) => (
+                      <SelectItem key={degree} value={degree}>
+                        {degree}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {validationErrors.degreeType && <p className="text-red-500 text-sm mt-1">Degree type is required</p>}
+              </div>
+
+              {showCustomDegree && (
+                <div>
+                  <Label htmlFor="degreeName" className="text-gray-700 text-sm flex items-center">
+                    Please specify your degree <span className="text-red-500 ml-1">*</span>
+                  </Label>
+                  <Input
+                    id="degreeName"
+                    value={formData.degreeName}
+                    onChange={(e) => updateFormData({ degreeName: e.target.value })}
+                    className={`mt-1 rounded-xl ${
+                      validationErrors.degreeName
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : "border-gray-300"
+                    }`}
+                    placeholder="E.g., Computer Science, Business Administration"
+                  />
+                  {validationErrors.degreeName && <p className="text-red-500 text-sm mt-1">Degree name is required</p>}
+                </div>
+              )}
             </div>
           )}
         </div>
