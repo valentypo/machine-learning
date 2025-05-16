@@ -13,8 +13,6 @@ import { MentalHealthStep } from "@/components/form-steps/mental-health-step"
 import { SuccessStep } from "@/components/form-steps/success-step"
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react"
 
-NEXT_PUBLIC_API_URL=https://depression-learning-backend-production.up.railway.app
-
 // Define the prediction result type
 interface PredictionResult {
   prediction: number
