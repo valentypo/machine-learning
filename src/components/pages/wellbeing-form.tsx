@@ -13,6 +13,8 @@ import { MentalHealthStep } from "@/components/form-steps/mental-health-step"
 import { SuccessStep } from "@/components/form-steps/success-step"
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react"
 
+NEXT_PUBLIC_API_URL=https://depression-learning-backend-production.up.railway.app
+
 // Define the prediction result type
 interface PredictionResult {
   prediction: number
@@ -211,13 +213,12 @@ export default function WellbeingForm() {
         financialStress: Number.parseInt(formData.financialStress),
       }
 
-      const response = await fetch("http://localhost:8080/api/predict", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
+        method: 'POST',
         body: JSON.stringify(data),
-      })
+        headers: { 'Content-Type': 'application/json' }
+      });
+
 
       const result = await response.json()
       console.log("Response from server:", result)
