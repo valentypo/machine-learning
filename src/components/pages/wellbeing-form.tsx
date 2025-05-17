@@ -211,7 +211,7 @@ export default function WellbeingForm() {
         financialStress: Number.parseInt(formData.financialStress),
       }
 
-      const response = await fetch(${process.env.NEXT_PUBLIC_API_URL}/api/predict, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/predict`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' }
