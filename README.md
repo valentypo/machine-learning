@@ -1,6 +1,10 @@
 # Student Depression Prediction Web App
 
-Backend Link : https://github.com/valentypo/depression-learning-backend (note: may only work up until 20th June 2025.)
+Kaggle Link : https://www.kaggle.com/code/valentypo/group-1-depression/edit/run/222554412
+
+Backend Link : https://github.com/valentypo/depression-learning-backend 
+
+(note: may only work up until 20th June 2025.)
 
 Website Link : https://machine-learning-mocha.vercel.app/
 
