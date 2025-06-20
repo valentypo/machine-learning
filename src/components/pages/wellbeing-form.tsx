@@ -186,7 +186,7 @@ export default function WellbeingForm() {
         financialStress: Number.parseInt(formData.financialStress),
       }
 
-      const response = await fetch("http://depression-learning-backend-production-4ca0.up.railway.app/api/predict", {
+      const response = await fetch("https://depression-learning-backend-production-9b19.up.railway.app/api/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
